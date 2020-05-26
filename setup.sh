@@ -29,3 +29,6 @@ fi
 
 echo "Starting Minikube (it might take a while)"
 minikube start --vm-driver=virtualbox
+
+server_ip = 'minikube ip'
+
