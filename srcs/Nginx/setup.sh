@@ -1,6 +1,5 @@
-adduser -D adorigo
-echo "adorigo:adorigo" | chpasswd
-
 /usr/sbin/sshd
+/etc/init.d/watcher.sh &
 nginx -t
-nginx -g "daemon off;"
+telegraf &
+nginx -g 'daemon off;'

@@ -1,24 +1,16 @@
-
-# FROM Image : alpine
 FROM alpine:latest
 
-# VOLUME /var/run/docker.sock:/var/run/docker.sock
-
-# Installation
 RUN apk update \
-&& apk add mariadb mariadb-client && apk add --no-cache --upgrade bash \
-&& rm -rf /var/cache/apk/*
+	&& apk add mysql mysql-client
 
-# Copy initialisation script
-COPY ./init_docker.sh .
-COPY ./init_mysql.sh .
-COPY wordpress.sql .
+RUN apk add telegraf --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted --no-cache
 
-# Add permission
-RUN chmod 777 init_docker.sh
-RUN chmod 777 init_mysql.sh
+RUN mkdir -p /etc/telegraf
+COPY ./telegraf.conf /etc/telegraf/telegraf.conf
+
+ADD init.sh .
+ADD my.cnf /etc/
 
 EXPOSE 3306
 
-# Start configuration script
-ENTRYPOINT [ "./init_docker.sh" ]
+ENTRYPOINT ["/bin/sh", "/init.sh"]

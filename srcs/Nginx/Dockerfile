@@ -1,30 +1,32 @@
-FROM alpine
+FROM alpine:latest
+RUN apk update \
+	&& apk upgrade \
+	&& apk add nginx \
+	&& apk add openssl openssh
 
-RUN apk update && apk add nginx \
-&& apk add openrc \
-&& apk add bash \
-&& apk add openssl && mkdir -p /var/run/nginx \
-&& apk add openssl openssh \
-&& rm -rf /var/cache/apk/*
+RUN apk add telegraf --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted --no-cache
 
-RUN adduser -D -g 'www' www \
-&& mkdir /www && chown -R www:www /var/lib/nginx \
-&& chown -R www:www /www
+COPY watcher.sh /etc/init.d/watcher.sh
+RUN chmod 777 /etc/init.d/watcher.sh
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN sed -i -e "s/#Port 22/Port 2222/g" /etc/ssh/sshd_config
+RUN mkdir /run/nginx
+RUN mkdir -p /www
+ADD index.html /www/index.html
+RUN chmod 666 /www/index.html
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=BE/ST=Bxl/L=Bruxelles/O=s19/OU=adorigo/CN=ft_services"
+RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -t rsa -N ''
 
-RUN mkdir /etc/nginx/ssl \
-&& openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out /etc/nginx/ssl/www.pem -keyout /etc/nginx/ssl/www.key -subj "/C=BE/ST=Bxl/L=Bruxelles/O=s19/OU=adorigo/CN=ft_services"
+COPY user.sh /tmp/user.sh
+RUN chmod +x /tmp/user.sh
+COPY setup.sh /setup.sh
+RUN chmod +x /setup.sh
+RUN sh /tmp/user.sh
 
-RUN rm /etc/nginx/nginx.conf
+RUN mkdir -p /etc/telegraf
+COPY ./telegraf.conf /etc/telegraf/telegraf.conf
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
-COPY id_rsa_key_ssh /etc/ssh/ssh_host_rsa_key
-COPY sshd_config /etc/ssh/
+EXPOSE 80 443 2222
 
-COPY setup.sh .
-COPY index.html /www/
-
-RUN chmod +x setup.sh
-RUN chmod 600 /etc/ssh/ssh_host_rsa_key
-
-EXPOSE 80 443 1234
 CMD ./setup.sh

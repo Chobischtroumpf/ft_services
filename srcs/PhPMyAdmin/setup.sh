@@ -1,1 +1,4 @@
-php -S 0.0.0.0:3306 -t /www/
+#!/bin/sh
+
+telegraf &
+php -S 0.0.0.0:5000 -t /www/
