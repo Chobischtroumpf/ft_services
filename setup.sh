@@ -19,7 +19,8 @@ if [[ $? != 0 ]] ; then
 	fi
 fi
 
-echo "set minikube_home"/
+echo "set minikube_home"
+export MINIKUBE_HOME=/Users/$(whoami)/goinfre
 
 echo "Deleting previous cluster if there is one"
 minikube delete
@@ -44,26 +45,26 @@ kubectl apply -f yaml/configMap.yaml
 docker build -t ft_mysql ./srcs/mysql/
 kubectl apply -f yaml/mysql.yaml
 
-docker build -t ft_phpmyadmin srcs/phpmyadmin/
-docker build -t ft_wordpress srcs/wordpress/
 docker build -t ft_mynginx srcs/nginx/
-docker build -t ft_ftps --build-arg IP=192.168.99.121 srcs/ftps/
+docker build -t ft_wordpress srcs/wordpress/
+docker build -t ft_ftps srcs/ftps/
 docker build -t ft_influxdb srcs/influxdb/
 docker build -t ft_grafana srcs/grafana/
+docker build -t ft_phpmyadmin srcs/phpmyadmin/
 
-## tells to wait untill mysql pod is started
+## waits until mysql is created and then adds wordpress sql to mysqk database
 kubectl exec -i $(kubectl get pods | grep mysql | cut -d" " -f1) -- mysql wordpress -u root < srcs/mysql/wordpress.sql
 
-kubectl apply -f yaml/phpmyadmin.yaml
-kubectl apply -f yaml/wordpress.yaml
 kubectl apply -f yaml/nginx.yaml
+kubectl apply -f yaml/wordpress.yaml
 kubectl apply -f yaml/ftps.yaml
 kubectl apply -f yaml/influxdb.yaml
 kubectl apply -f yaml/grafana.yaml
+kubectl apply -f yaml/phpmyadmin.yaml
 
 
 
 minikube ip
 # docker ps -a
 # minikube start --vm-driver=virtualbox
-minikube dashboard & 
+# minikube dashboard & 

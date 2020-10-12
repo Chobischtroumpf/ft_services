@@ -49,5 +49,11 @@ spec:
         - containerPort: 443
           name: https
         imagePullPolicy: Never
-        command: [ "/bin/sh", "-ce", "tail -f /dev/null" ]
----
+        livenessProbe:
+          exec:
+            command:
+            - /bin/ash
+            - -c
+            - 'ps aux | egrep [t]elegraf && ps aux | egrep [s]shd'
+          initialDelaySeconds: 10
+          periodSeconds: 5

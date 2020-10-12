@@ -50,6 +50,14 @@ spec:
       - name: mysql
         image: ft_mysql
         imagePullPolicy: Never
+        livenessProbe:
+          exec:
+            command:
+            - /bin/ash
+            - -c
+            - 'ps aux | egrep [t]elegraf'
+          initialDelaySeconds: 10
+          periodSeconds: 5
         volumeMounts:
         - name: mysql-persistent-volume
           mountPath: /var/lib/mysql

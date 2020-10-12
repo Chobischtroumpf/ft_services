@@ -6,8 +6,6 @@ RUN apk update \
 
 RUN apk add telegraf --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted --no-cache
 
-COPY watcher.sh /etc/init.d/watcher.sh
-RUN chmod 777 /etc/init.d/watcher.sh
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 RUN sed -i -e "s/#Port 22/Port 2222/g" /etc/ssh/sshd_config
@@ -19,9 +17,7 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -t rsa -N ''
 
 COPY user.sh /tmp/user.sh
-RUN chmod +x /tmp/user.sh
 COPY setup.sh /setup.sh
-RUN chmod +x /setup.sh
 RUN sh /tmp/user.sh
 
 RUN mkdir -p /etc/telegraf
@@ -29,4 +25,4 @@ COPY ./telegraf.conf /etc/telegraf/telegraf.conf
 
 EXPOSE 80 443 2222
 
-CMD ./setup.sh
+CMD /usr/sbin/sshd ;  sh /setup.sh ;

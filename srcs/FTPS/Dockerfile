@@ -17,9 +17,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private
 
 RUN chmod 600 /etc/ssl/private/pure-ftpd.pem
 
-# COPY vsftpd.conf /etc/vsftpd/vsftpd.conf
-# COPY start_vsftpd.sh /
-# RUN chmod +x start_vsftpd.sh
 
 RUN mkdir -p /etc/telegraf
 COPY ./telegraf.conf /etc/telegraf/telegraf.conf

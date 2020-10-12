@@ -1,2 +1,2 @@
-influxd run -config /etc/influxdb.conf &
-telegraf
+telegraf &
+influxd run -config /etc/influxdb.conf
